@@ -1,0 +1,7 @@
+{
+  "name": "Plant & Fruit Identifier",
+  "description": "An AI-powered web application to identify plants and fruits from images. Simply upload an image or use your camera, and the app will provide information about the item.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
