@@ -1,0 +1,7 @@
+[build]
+  # (Optional) If you have a build command for your frontend (e.g., if you were using Vite, Create React App)
+  # command = "npm run build"
+  # publish = "dist" # Or your build output directory
+
+[functions]
+  directory = "netlify/functions"
