@@ -27,7 +27,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
-      body: JSON.stringify({ error: "Method Not Allowed", message: "Only POST requests are accepted." }),
+      body: JSON.stringify({ error: "ວິທີການບໍ່ໄດ້ຮັບອະນຸຍາດ", message: "ຮັບສະເພາະການຮ້ອງຂໍແບບ POST ເທົ່ານັ້ນ." }),
       headers: { 'Content-Type': 'application/json' },
     };
   }
@@ -38,7 +38,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
     console.error("API_KEY environment variable is not set in Netlify function environment.");
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Configuration Error", message: "API Key is not configured on the server." }),
+      body: JSON.stringify({ error: "ຂໍ້ຜິດພາດການຕັ້ງຄ່າ", message: "API Key ບໍ່ໄດ້ຖືກຕັ້ງຄ່າເທິງເຊີບເວີ." }),
       headers: { 'Content-Type': 'application/json' },
     };
   }
@@ -46,17 +46,21 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
   let body: RequestBody;
   try {
     if (!event.body) {
-      throw new Error("Request body is empty.");
+      throw new Error("ເນື້ອໃນການຮ້ອງຂໍຫວ່າງເປົ່າ.");
     }
-    body = JSON.parse(event.body);
-    if (!body.imageData || !body.mimeType) {
-      throw new Error("Missing imageData or mimeType in request body.");
+    const parsedBody = JSON.parse(event.body) as Partial<RequestBody>;
+    if (typeof parsedBody.imageData !== 'string' || typeof parsedBody.mimeType !== 'string') {
+      throw new Error("imageData ຫຼື mimeType ຂາດຫາຍໄປ ຫຼື ບໍ່ຖືກຕ້ອງໃນເນື້ອໃນການຮ້ອງຂໍ.");
     }
+    body = { 
+      imageData: parsedBody.imageData,
+      mimeType: parsedBody.mimeType
+    };
   } catch (error) {
     console.error("Error parsing request body:", error);
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: "Bad Request", message: error instanceof Error ? error.message : "Invalid request body." }),
+      body: JSON.stringify({ error: "ການຮ້ອງຂໍບໍ່ຖືກຕ້ອງ", message: error instanceof Error ? error.message : "ເນື້ອໃນການຮ້ອງຂໍບໍ່ຖືກຕ້ອງ." }),
       headers: { 'Content-Type': 'application/json' },
     };
   }
@@ -73,17 +77,17 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
     };
 
     const textPart = {
-      text: `Identify the plant or fruit in this image. 
-      Respond in JSON format with the following structure: 
+      text: `ກວດສອບພືດ ຫຼື ໝາກໄມ້ໃນຮູບນີ້. 
+      ຕອບກັບໃນຮູບແບບ JSON ຕາມໂຄງສ້າງຕໍ່ໄປນີ້: 
       {
-        "name": "Common Name", 
-        "scientific_name": "Scientific Name (if known, otherwise skip)", 
-        "description": "A brief description (2-4 sentences, including visual characteristics, common uses, or interesting facts)",
-        "edible": "Provide edibility information (e.g., 'Yes', 'No', 'Parts are edible', 'Toxic', 'Unknown')",
-        "origin": "Geographical origin or common regions (if known, otherwise skip)"
+        "name": "ຊື່ສາມັນ", 
+        "scientific_name": "ຊື່ວິທະຍາສາດ (ຖ້າຮູ້, ຖ້າບໍ່ຮູ້ໃຫ້ຂ້າມໄປ)", 
+        "description": "ລາຍລະອຽດໂດຍຫຍໍ້ (2-4 ປະໂຫຍກ, ລວມທັງລັກສະນະທີ່ເບິ່ງເຫັນ, ການນຳໃຊ້ທົ່ວໄປ, ຫຼືຂໍ້ມູນທີ່ໜ້າສົນໃຈ)",
+        "edible": "ຂໍ້ມູນການກິນໄດ້ (ຕົວຢ່າງ: 'ກິນໄດ້', 'ກິນບໍ່ໄດ້', 'ບາງສ່ວນກິນໄດ້', 'ເປັນພິດ', 'ບໍ່ຮູ້ຂໍ້ມູນ')",
+        "origin": "ແຫຼ່ງກຳເນີດທາງພູມສາດ ຫຼື ເຂດທີ່ພົບເຫັນທົ່ວໄປ (ຖ້າຮູ້, ຖ້າບໍ່ຮູ້ໃຫ້ຂ້າມໄປ)"
       }. 
-      If unsure or if it's not a plant/fruit, return {"error": "Unable to identify", "message": "The image may not contain a recognizable plant or fruit, or the quality is too low."}.
-      Focus on being informative and concise.`
+      ຖ້າບໍ່ແນ່ໃຈ ຫຼື ບໍ່ແມ່ນພືດ/ໝາກໄມ້, ໃຫ້ຕອບວ່າ {"error": "ບໍ່ສາມາດກວດສອບໄດ້", "message": "ຮູບພາບອາດບໍ່ມີພືດ ຫຼື ໝາກໄມ້ທີ່ສາມາດຈຳແນກໄດ້, ຫຼື ຄຸນນະພາບຂອງຮູບຕ່ຳເກີນໄປ."}.
+      ເນັ້ນໃຫ້ຂໍ້ມູນທີ່ເປັນປະໂຫຍດ ແລະ ກະທັດຮັດ.`
     };
 
     const response: GenerateContentResponse = await ai.models.generateContent({
@@ -91,11 +95,11 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       contents: { parts: [imagePart, textPart] },
       config: {
         responseMimeType: "application/json",
-        temperature: 0.5, // A moderate temperature for factual but slightly creative descriptions
+        temperature: 0.5, 
       }
     });
 
-    const responseText = response.text; // Access the text property directly
+    const responseText = response.text; 
 
     if (typeof responseText !== 'string') {
         console.error("Gemini response text content is not a string or is missing:", responseText);
@@ -103,10 +107,10 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
     }
 
     let jsonStr = responseText.trim();
-    const fenceRegex = /^\`\`\`(\w*)?\s*\n?(.*?)\n?\s*\`\`\`$/s; // Regex to remove markdown code fences
+    const fenceRegex = /^\`\`\`(\w*)?\s*\n?(.*?)\n?\s*\`\`\`$/s; 
     const match = jsonStr.match(fenceRegex);
     if (match && match[2]) {
-      jsonStr = match[2].trim(); // Get the content within the fences and trim again
+      jsonStr = match[2].trim(); 
     }
     
     const parsedData = JSON.parse(jsonStr) as GeminiApiResponse;
@@ -119,14 +123,14 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
 
   } catch (error: unknown) {
     console.error("Error identifying image with Gemini API:", error);
-    let errorMessage = "An unexpected error occurred during identification with the AI model.";
+    let errorMessage = "ເກີດຂໍ້ຜິດພາດທີ່ບໍ່ຄາດຄິດໃນລະຫວ່າງການກວດສອບດ້ວຍແບບຈຳລອງ AI.";
     if (error instanceof Error) {
         errorMessage = error.message;
     }
     
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "AI Service Error", message: errorMessage }),
+      body: JSON.stringify({ error: "ຂໍ້ຜິດພາດຈາກບໍລິການ AI", message: errorMessage }),
       headers: { 'Content-Type': 'application/json' },
     };
   }

@@ -1,7 +1,9 @@
+
 {
-  "name": "Plant & Fruit Identifier",
-  "description": "An AI-powered web application to identify plants and fruits from images. Simply upload an image or use your camera, and the app will provide information about the item.",
+  "name": "ເຄື່ອງມືກວດສອບພືດ ແລະ ໝາກໄມ້",
+  "description": "ແອັບພລິເຄຊັນເວັບທີ່ຂັບເຄື່ອນດ້ວຍ AI ເພື່ອກວດສອບພືດ ແລະ ໝາກໄມ້ຈາກຮູບພາບ. ພຽງແຕ່ອັບໂຫຼດຮູບ ຫຼື ໃຊ້ກ້ອງຖ່າຍຮູບຂອງທ່ານ, ແລ້ວແອັບຈະສະໜອງຂໍ້ມູນກ່ຽວກັບລາຍການນັ້ນ.",
   "requestFramePermissions": [
     "camera"
-  ]
+  ],
+  "prompt": ""
 }
