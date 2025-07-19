@@ -66,7 +66,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
   }
 
   const ai = new GoogleGenAI({ apiKey: API_KEY });
-  const modelName = 'gemini-2.5-flash-preview-04-17';
+  const modelName = 'gemini-1.5-flash';
 
   try {
     const imagePart = {
